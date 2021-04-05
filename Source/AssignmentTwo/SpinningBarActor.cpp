@@ -32,8 +32,7 @@ void ASpinningBarActor::BeginPlay()
 void ASpinningBarActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//AddActorLocalRotation(FRotator(0.0f, RotationRate * DeltaTime, 0.0f));
-	SpinBar();
+	AddActorLocalRotation(FRotator(0.0f, RotationRate * DeltaTime, 0.0f));
 }
 
 void ASpinningBarActor::SpinBar()

@@ -36,15 +36,13 @@ private: // Functions
 	void LookUp(float axis); // Function for looking up and down
 	void Turn(float axis); // Function for turning left and right
 	void Dive();
+	void Push();
 
 	UFUNCTION(Server, Reliable, WithValidation) // RPC
 		void ServerDive();
 
-	UFUNCTION()
-		void StartFallTimer();
-
-	UFUNCTION()
-		void ResetPlayerPosition();
+	UFUNCTION(Server, Reliable, WithValidation) // RPC
+		void ServerPush();
 
 private: // Variables
 	UPROPERTY(EditAnywhere)
@@ -58,9 +56,19 @@ private: // Variables
 	UPROPERTY(EditAnywhere)
 		float DiveStrength = 1000;
 
-	UPROPERTY()
-		int FallTimerTracker = 0;
+	const float MAX_PUSH_LENGTH = 100;
+	const float MAX_PUSH_STRENGTH = 1000;
 
+	UPROPERTY(EditAnywhere)
+		float PushLength = 1000;
+
+	UPROPERTY(EditAnywhere)
+		float PushStrength = 1000;
+
+	UPROPERTY(EditAnywhere)
+		USceneComponent* PushStartComp;
+
+public:
 	UPROPERTY()
-		FTimerHandle FallTimer;
+		FVector CheckpointLocation;
 };

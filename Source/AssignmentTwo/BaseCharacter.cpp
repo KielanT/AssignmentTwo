@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -23,6 +24,10 @@ ABaseCharacter::ABaseCharacter()
 	/*** Camera Setup ***/
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	PushStartComp = CreateDefaultSubobject<USceneComponent>(TEXT("Push Start Component"));
+	PushStartComp->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +38,9 @@ void ABaseCharacter::BeginPlay()
 	FHitResult OutHit;
 	GetCharacterMovement()->SafeMoveUpdatedComponent(FVector(0.f, 0.f, 0.01f), GetActorRotation(), true, OutHit);
 	GetCharacterMovement()->SafeMoveUpdatedComponent(FVector(0.f, 0.f, -0.01f), GetActorRotation(), true, OutHit);
+
+	CheckpointLocation = GetActorLocation();
+
 }
 
 // Called every frame
@@ -40,13 +48,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-	if (GetCharacterMovement()->IsFalling() && JumpCurrentCount == 0) // Only resets location if the player is not jumping
-	{
-		FallTimerTracker++;
-		StartFallTimer();
-		
-	}
 }
 
 // Called to bind functionality to input
@@ -61,6 +62,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ABaseCharacter::Turn);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Dive"), IE_Pressed, this, &ABaseCharacter::Dive);
+	PlayerInputComponent->BindAction(TEXT("Push"), IE_Pressed, this, &ABaseCharacter::Push);
 }
 
 
@@ -89,17 +91,50 @@ void ABaseCharacter::Dive()
 	ServerDive();
 }
 
-void ABaseCharacter::StartFallTimer()
+void ABaseCharacter::Push()
 {
-	if (FallTimerTracker == 1)
+	ServerPush();
+	
+}
+
+void ABaseCharacter::ServerPush_Implementation()
+{
+	FVector Location = PushStartComp->GetComponentLocation();
+	FRotator Rotation = PushStartComp->GetComponentRotation();
+
+	FVector End = Location + Rotation.Vector() * PushLength;
+
+	FHitResult Hit; // Creates hit result
+
+	// Collision ignores itself 
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool success = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_Visibility, Params); // Checks if ray has hit something
+	if (success) // if hit has happened
 	{
-		GetWorld()->GetTimerManager().SetTimer(FallTimer, this, &ABaseCharacter::ResetPlayerPosition, 3.0f, false);
+		AActor* HitActor = Hit.GetActor(); // Gets the actor been hit
+		UE_LOG(LogTemp, Warning, TEXT("Raycast Fired"));
+		DrawDebugLine(GetWorld(), Location, End, FColor::Red, false, 5);
+
+		if (HitActor != nullptr) // Checks if actor exists
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Push"))
+			ABaseCharacter* OtherActor = Cast<ABaseCharacter>(HitActor);
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *HitActor->GetName()));
+			if (HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Push Player"));
+
+				OtherActor->LaunchCharacter(HitActor->GetActorForwardVector() * PushStrength, false, false);
+			}
+		}
 	}
 }
 
-void ABaseCharacter::ResetPlayerPosition()
+bool ABaseCharacter::ServerPush_Validate()
 {
-	SetActorLocation({ 0, 0, 0 }); // Later change to checkpoint system
+	return true;
 }
 
 void ABaseCharacter::ServerDive_Implementation()

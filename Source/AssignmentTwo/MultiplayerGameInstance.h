@@ -4,24 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "MenuInterface.h"
 #include "MultiplayerGameInstance.generated.h"
 
-/**
- * 
- */
+class UUserWidget;
+class UMainMenu;
+
 UCLASS()
-class ASSIGNMENTTWO_API UMultiplayerGameInstance : public UGameInstance
+class ASSIGNMENTTWO_API UMultiplayerGameInstance : public UGameInstance, public IMenuInterface
 {
 	GENERATED_BODY()
 
 
 public:
-	UFUNCTION(Exec)
-		void Host();
+	UMultiplayerGameInstance();
 
 	UFUNCTION(Exec)
-		void Join(const FString IPAddress);
+		void Host() override;
+
+	UFUNCTION(Exec)
+		void Join(const FString IPAddress) override;
 
 	UFUNCTION(Exec)
 		void Warp(const FString LevelName);
+
+	UFUNCTION(BlueprintCallable)
+		void LoadMenuWidget();
+
+private:
+	TSubclassOf<UUserWidget> MenuClass;
+
+	UMainMenu* Menu;
 };
