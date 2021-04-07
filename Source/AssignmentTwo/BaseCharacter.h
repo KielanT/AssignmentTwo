@@ -30,6 +30,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+	UFUNCTION(Client, Reliable) // RPC
+		void ClientFinishSound();
+
 private: // Functions
 	void MoveForwards(float axis); // Function for forwards and backwards controls
 	void Strafe(float axis); // Function for left and right controls
@@ -37,12 +40,17 @@ private: // Functions
 	void Turn(float axis); // Function for turning left and right
 	void Dive();
 	void Push();
+	void CheckInFront();
 
 	UFUNCTION(Server, Reliable, WithValidation) // RPC
 		void ServerDive();
 
 	UFUNCTION(Server, Reliable, WithValidation) // RPC
 		void ServerPush();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerCheckInFront();
+
 
 private: // Variables
 	UPROPERTY(EditAnywhere)
@@ -60,15 +68,24 @@ private: // Variables
 	const float MAX_PUSH_STRENGTH = 1000;
 
 	UPROPERTY(EditAnywhere)
-		float PushLength = 1000;
+		float PushLength = 100;
 
 	UPROPERTY(EditAnywhere)
-		float PushStrength = 1000;
+		float PushStrength = 5000;
+
+	UPROPERTY(EditAnywhere)
+		float CheckLength = 200;
 
 	UPROPERTY(EditAnywhere)
 		USceneComponent* PushStartComp;
 
+	UPROPERTY(EditAnywhere)
+		USoundBase* FinishSound;
+
 public:
 	UPROPERTY()
 		FVector CheckpointLocation;
+
+	UPROPERTY()
+		bool isInFront = false;
 };

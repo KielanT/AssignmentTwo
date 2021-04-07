@@ -3,10 +3,13 @@
 
 #include "CourseGameMode.h"
 #include "MyCourseGameState.h"
+#include "MultiplayerGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 ACourseGameMode::ACourseGameMode()
 {
 	GameStateClass = AMyCourseGameState::StaticClass();
+
 }
 
 void ACourseGameMode::PostLogin(APlayerController* NewPlayer)
@@ -41,4 +44,10 @@ void ACourseGameMode::SetNumberOfPlayersFinished(uint32 numPlayers)
 void ACourseGameMode::SetNumberOfPlayers(uint32 numPlayers)
 {
 	GetGameState<AMyCourseGameState>()->NumberOfPlayers = numPlayers;
+}
+
+void ACourseGameMode::BeginPlay()
+{
+	//UMultiplayerGameInstance* GameInstanceRef = Cast<UMultiplayerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	//GameInstanceRef->LoadHUDWidget();
 }

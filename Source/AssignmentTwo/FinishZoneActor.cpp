@@ -9,6 +9,9 @@
 #include "CourseGameMode.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "HUDWidget.h"
+#include "NET/UnrealNetwork.h"
+#include "CustomPlayerController.h"
 
 // Sets default values
 AFinishZoneActor::AFinishZoneActor()
@@ -24,6 +27,12 @@ AFinishZoneActor::AFinishZoneActor()
 
 	ParticleTwoSpawner = CreateDefaultSubobject<USceneComponent>(TEXT("Particle Two Spawn"));
 	ParticleTwoSpawner->SetupAttachment(RootComponent);
+}
+
+void AFinishZoneActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AFinishZoneActor, PlayerTracker);
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +51,17 @@ void AFinishZoneActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AFinishZoneActor::ServerUpdateText_Implementation()
+{
+	FString CountText = FString::FromInt(PlayerTracker);
+	GameInstanceRef->HUD->SetFinishCountText(FText::FromString(CountText));
+}
+
+bool AFinishZoneActor::ServerUpdateText_Validate()
+{
+	return true;
 }
 
 void AFinishZoneActor::MulticastPlayParticles_Implementation()
@@ -66,12 +86,6 @@ void AFinishZoneActor::MulticastPlayParticles_Implementation()
 	}
 }
 
-void AFinishZoneActor::ClientFinishSound_Implementation()
-{
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FinishSound, GetActorLocation());
-}
-
-
 
 void AFinishZoneActor::OnOverlapBegin_Implementation(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -82,23 +96,32 @@ void AFinishZoneActor::OnOverlapBegin_Implementation(UPrimitiveComponent* Overla
 	{
 		if (!CharactersCrossLine.Contains(OtherActor))
 		{
-			CharactersCrossLine.Add(Cast<ABaseCharacter>(OtherActor));
+			ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
+			UE_LOG(LogTemp, Warning, TEXT("Crossed Line"));
+			CharactersCrossLine.Add(Player);
 			PlayerTracker++;
 			CourseGameModeRef->SetNumberOfPlayersFinished(PlayerTracker);
-			ClientFinishSound();
 
+			Player->ClientFinishSound();
+
+			APlayerController* PC = GetWorld()->GetFirstPlayerController();
+			ACustomPlayerController* CPC = Cast<ACustomPlayerController>(PC);
 			
+			//FString CountText = FString::FromInt(PlayerTracker);
+			//CPC->HUD->SetFinishCountText(FText::FromString(CountText));
+			ServerUpdateText();
 		}
 	}
 
 	MulticastPlayParticles();
-	
-	
+
+
 	if (PlayerTracker >= 3)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Players finished"));
 		ServerChangeLevel();
 	}
+
 }
 
 

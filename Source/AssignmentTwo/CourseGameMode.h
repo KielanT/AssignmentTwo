@@ -32,7 +32,8 @@ public:
 	UFUNCTION()
 		void SetNumberOfPlayers(uint32 numPlayers);
 
-	
+protected:
+	virtual void BeginPlay() override;
 
 private:
 	uint32 NumberOfPlayersFinished = 0;

@@ -22,6 +22,8 @@ public:
 	// Sets default values for this actor's properties
 	AFinishZoneActor();
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,14 +42,13 @@ private:
 	UPROPERTY()
 		TArray<ABaseCharacter*> CharactersCrossLine;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 		int PlayerTracker = 0;
 
 	UPROPERTY()
 		UMultiplayerGameInstance* GameInstanceRef;
 
-	UPROPERTY(EditAnywhere)
-		USoundBase* FinishSound;
+	
 
 	UPROPERTY()
 		ACourseGameMode* CourseGameModeRef;
@@ -86,9 +87,11 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation) // RPC
 		void ServerChangeLevel();
 
-	UFUNCTION(Client, Reliable) // RPC
-		void ClientFinishSound();
+	
 
 	UFUNCTION(NetMulticast, Reliable) // RPC
 		void MulticastPlayParticles();
+
+	UFUNCTION(Server, Reliable, WithValidation) // RPC
+		void ServerUpdateText();
 };

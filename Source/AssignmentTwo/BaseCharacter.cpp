@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -28,6 +29,7 @@ ABaseCharacter::ABaseCharacter()
 	PushStartComp = CreateDefaultSubobject<USceneComponent>(TEXT("Push Start Component"));
 	PushStartComp->SetupAttachment(RootComponent);
 
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
@@ -47,7 +49,7 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	CheckInFront();
 }
 
 // Called to bind functionality to input
@@ -97,6 +99,49 @@ void ABaseCharacter::Push()
 	
 }
 
+void ABaseCharacter::CheckInFront()
+{
+	if (IsLocallyControlled())
+	{
+		ServerCheckInFront();
+	}
+}
+
+void ABaseCharacter::ServerCheckInFront_Implementation()
+{
+	FVector Location = GetActorLocation();
+	FRotator Rotation = GetActorRotation();
+
+	FVector End = Location - GetActorForwardVector() * CheckLength;
+
+	FHitResult Hit; // Creates hit result
+
+	// Collision ignores itself 
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool success = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_Pawn, Params); // Checks if ray has hit something
+
+	if (success) // if hit has happened
+	{
+		AActor* HitActor = Hit.GetActor(); // Gets the actor been hit
+		
+		if (HitActor != nullptr && HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass())) // Checks if actor exists
+		{
+			isInFront = true;
+		}
+	}
+	else
+	{
+		isInFront = false;
+	}
+}
+
+bool ABaseCharacter::ServerCheckInFront_Validate()
+{
+	return true;
+}
+
 void ABaseCharacter::ServerPush_Implementation()
 {
 	FVector Location = PushStartComp->GetComponentLocation();
@@ -110,23 +155,21 @@ void ABaseCharacter::ServerPush_Implementation()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
-	bool success = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_Visibility, Params); // Checks if ray has hit something
+	bool success = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_Pawn, Params); // Checks if ray has hit something
 	if (success) // if hit has happened
 	{
 		AActor* HitActor = Hit.GetActor(); // Gets the actor been hit
-		UE_LOG(LogTemp, Warning, TEXT("Raycast Fired"));
-		DrawDebugLine(GetWorld(), Location, End, FColor::Red, false, 5);
 
 		if (HitActor != nullptr) // Checks if actor exists
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Push"))
 			ABaseCharacter* OtherActor = Cast<ABaseCharacter>(HitActor);
-			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *HitActor->GetName()));
 			if (HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Push Player"));
 
-				OtherActor->LaunchCharacter(HitActor->GetActorForwardVector() * PushStrength, false, false);
+				if (OtherActor->isInFront)
+				{
+					OtherActor->LaunchCharacter(HitActor->GetActorForwardVector() * PushStrength, true, true);
+				}
 			}
 		}
 	}
@@ -152,4 +195,9 @@ bool ABaseCharacter::ServerDive_Validate()
 	{
 		return false;
 	}
+}
+
+void ABaseCharacter::ClientFinishSound_Implementation()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FinishSound, GetActorLocation());
 }

@@ -3,6 +3,7 @@
 
 #include "MultiplayerGameInstance.h"
 #include "MainMenu.h"
+#include "HUDWidget.h"
 #include "Blueprint/UserWidget.h"
 
 
@@ -11,6 +12,10 @@ UMultiplayerGameInstance::UMultiplayerGameInstance()
 	ConstructorHelpers::FClassFinder<UUserWidget>MenuWidgetBPClass(TEXT("/Game/Blueprints/WBP_MainMenu"));
 	if (MenuWidgetBPClass.Class == nullptr) return;
 	MenuClass = MenuWidgetBPClass.Class;
+
+	ConstructorHelpers::FClassFinder<UUserWidget>HUDBPClass(TEXT("/Game/Blueprints/WBP_HUD"));
+	if (HUDBPClass.Class == nullptr) return;
+	HUDClass = HUDBPClass.Class;
 }
 
 void UMultiplayerGameInstance::Host()
@@ -39,6 +44,10 @@ void UMultiplayerGameInstance::Warp(const FString LevelName)
 	UWorld* World = GetWorld();
 	if (World != nullptr)
 	{
+		if (HUD != nullptr)
+		{
+			HUD->TearDown();
+		}
 		FString Destination = FString::Printf(TEXT("/Game/Levels/%s?listen"), *LevelName);
 		World->ServerTravel(Destination);
 	}
@@ -46,10 +55,11 @@ void UMultiplayerGameInstance::Warp(const FString LevelName)
 
 void UMultiplayerGameInstance::LoadMenuWidget()
 {
-	if (!ensure(MenuClass != nullptr)) return;
+	if (MenuClass == nullptr) return;
 	Menu = CreateWidget<UMainMenu>(this, MenuClass);
-	if (!ensure(Menu != nullptr)) return;
+	if (Menu == nullptr) return;
 
 	Menu->Setup();
 	Menu->SetMenuInterface(this);
 }
+

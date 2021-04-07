@@ -15,12 +15,12 @@ ARevolvingDoorActor::ARevolvingDoorActor()
 void ARevolvingDoorActor::BeginPlay()
 {
 	Super::BeginPlay();
-	if (HasAuthority())
-	{
-		//NetUpdateFrequency = 5;
-		SetReplicates(true);
-		SetReplicateMovement(true);
-	}
+	//if (HasAuthority())
+	//{
+	//	//NetUpdateFrequency = 5;
+	//	SetReplicates(true);
+	//	SetReplicateMovement(true);
+	//}
 }
 
 // Called every frame

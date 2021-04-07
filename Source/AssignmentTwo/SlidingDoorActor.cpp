@@ -41,11 +41,7 @@ void ASlidingDoorActor::Tick(float DeltaTime)
     MultiCastSlideDoor();
 }
 
-void ASlidingDoorActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-    DOREPLIFETIME(ASlidingDoorActor, Speed);
-}
+
 
 void ASlidingDoorActor::ResetTarget_Implementation()
 {
@@ -86,4 +82,19 @@ void ASlidingDoorActor::MultiCastSlideDoor_Implementation()
 bool ASlidingDoorActor::MultiCastSlideDoor_Validate()
 {
     return true;
+}
+
+void ASlidingDoorActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(ASlidingDoorActor, Mesh);
+    DOREPLIFETIME(ASlidingDoorActor, Speed);
+    DOREPLIFETIME(ASlidingDoorActor, CurrentPos);
+    DOREPLIFETIME(ASlidingDoorActor, TargetPos);
+    DOREPLIFETIME(ASlidingDoorActor, TopPos);
+    DOREPLIFETIME(ASlidingDoorActor, BottomPos);
+    DOREPLIFETIME(ASlidingDoorActor, DoorWaitTimer);
+    DOREPLIFETIME(ASlidingDoorActor, DoorWaitTime);
+    DOREPLIFETIME(ASlidingDoorActor, TimerTracker);
+
 }

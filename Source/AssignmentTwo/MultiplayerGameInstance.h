@@ -9,6 +9,7 @@
 
 class UUserWidget;
 class UMainMenu;
+class UHUDWidget;
 
 UCLASS()
 class ASSIGNMENTTWO_API UMultiplayerGameInstance : public UGameInstance, public IMenuInterface
@@ -31,8 +32,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void LoadMenuWidget();
 
+
 private:
 	TSubclassOf<UUserWidget> MenuClass;
+	TSubclassOf<UUserWidget> HUDClass;
 
 	UMainMenu* Menu;
+
+public:
+	UHUDWidget* HUD;
 };

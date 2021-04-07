@@ -26,7 +26,7 @@ public:
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(Replicated)
