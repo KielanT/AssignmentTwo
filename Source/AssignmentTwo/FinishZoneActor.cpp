@@ -16,23 +16,30 @@
 // Sets default values
 AFinishZoneActor::AFinishZoneActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	Zone = CreateDefaultSubobject<UBoxComponent>(TEXT("Finish Zone"));
 	Zone->SetupAttachment(RootComponent);
 
-	ParticleOneSpawner = CreateDefaultSubobject<USceneComponent>(TEXT("Particle One Spawn"));
-	ParticleOneSpawner->SetupAttachment(RootComponent);
+	ParticleOne = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle One"));
+	ParticleOne->SetupAttachment(Zone);
 
-	ParticleTwoSpawner = CreateDefaultSubobject<USceneComponent>(TEXT("Particle Two Spawn"));
-	ParticleTwoSpawner->SetupAttachment(RootComponent);
+	ParticleTwo = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle Two"));
+	ParticleTwo->SetupAttachment(Zone);
+	bReplicates = true;
 }
 
 void AFinishZoneActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AFinishZoneActor, PlayerTracker);
+	DOREPLIFETIME(AFinishZoneActor, ParticleOne);
+	DOREPLIFETIME(AFinishZoneActor, ParticleTwo);
+	DOREPLIFETIME(AFinishZoneActor, CharactersCrossLine);
+	DOREPLIFETIME(AFinishZoneActor, Characters);
+	DOREPLIFETIME(AFinishZoneActor, Zone);
+	DOREPLIFETIME(AFinishZoneActor, bIsParticleActive);
 }
 
 // Called when the game starts or when spawned
@@ -44,13 +51,17 @@ void AFinishZoneActor::BeginPlay()
 
 	GameInstanceRef = Cast<UMultiplayerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	CourseGameModeRef = Cast<ACourseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	ParticleOne->SetActive(bIsParticleActive);
+	ParticleTwo->SetActive(bIsParticleActive);
+
 }
 
 // Called every frame
 void AFinishZoneActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	MulticastPlayParticles();
 }
 
 void AFinishZoneActor::ServerUpdateText_Implementation()
@@ -68,21 +79,9 @@ void AFinishZoneActor::MulticastPlayParticles_Implementation()
 {
 	if (PlayerTracker == 1)
 	{
-		FVector ParticleOneLocation = GetActorLocation();
-		ParticleOneLocation.X += ParticleOffsetX;
-		ParticleOneLocation.Y += ParticleOffsetY;
-		ParticleOneLocation.Z += ParticleOffsetZ;
-
-		FVector ParticleTwoLocation = GetActorLocation();
-		ParticleTwoLocation.X -= ParticleOffsetX;
-		ParticleTwoLocation.Y -= ParticleOffsetY;
-		ParticleTwoLocation.Z += ParticleOffsetZ;
-
-		if (ParticleSystemOne != nullptr && ParticleSystemTwo != nullptr)
-		{
-			ParticleOne = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystemOne, ParticleOneLocation, GetActorRotation());
-			ParticleTwo = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParticleSystemTwo, ParticleTwoLocation, GetActorRotation());
-		}
+		bIsParticleActive = true;
+		ParticleOne->SetActive(bIsParticleActive);
+		ParticleTwo->SetActive(bIsParticleActive);
 	}
 }
 
@@ -106,14 +105,14 @@ void AFinishZoneActor::OnOverlapBegin_Implementation(UPrimitiveComponent* Overla
 
 			APlayerController* PC = GetWorld()->GetFirstPlayerController();
 			ACustomPlayerController* CPC = Cast<ACustomPlayerController>(PC);
-			
+
 			//FString CountText = FString::FromInt(PlayerTracker);
 			//CPC->HUD->SetFinishCountText(FText::FromString(CountText));
 			ServerUpdateText();
 		}
 	}
 
-	MulticastPlayParticles();
+
 
 
 	if (PlayerTracker >= 3)
@@ -123,7 +122,6 @@ void AFinishZoneActor::OnOverlapBegin_Implementation(UPrimitiveComponent* Overla
 	}
 
 }
-
 
 void AFinishZoneActor::ServerChangeLevel_Implementation()
 {
