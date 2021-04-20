@@ -33,13 +33,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		UBoxComponent* Zone;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 		TArray<AActor*> Characters;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 		TArray<ABaseCharacter*> CharactersCrossLine;
 
 	UPROPERTY(Replicated)
@@ -53,32 +53,15 @@ private:
 	UPROPERTY()
 		ACourseGameMode* CourseGameModeRef;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		UNiagaraComponent* ParticleOne;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Replicated)
 		UNiagaraComponent* ParticleTwo;
 
-	UPROPERTY(EditAnywhere)
-		UNiagaraSystem* ParticleSystemOne;
+	UPROPERTY(Replicated)
+		bool bIsParticleActive = false;
 
-	UPROPERTY(EditAnywhere)
-		UNiagaraSystem* ParticleSystemTwo;
-
-	UPROPERTY(EditAnywhere)
-		USceneComponent* ParticleOneSpawner;
-
-	UPROPERTY(EditAnywhere)
-		USceneComponent* ParticleTwoSpawner;
-
-	UPROPERTY(EditAnywhere)
-		float ParticleOffsetX;
-
-	UPROPERTY(EditAnywhere)
-		float ParticleOffsetY;
-
-	UPROPERTY(EditAnywhere)
-		float ParticleOffsetZ;
 
 	UFUNCTION(Server, Reliable)
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -86,8 +69,6 @@ private:
 
 	UFUNCTION(Server, Reliable, WithValidation) // RPC
 		void ServerChangeLevel();
-
-	
 
 	UFUNCTION(NetMulticast, Reliable) // RPC
 		void MulticastPlayParticles();

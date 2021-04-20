@@ -59,13 +59,15 @@ private: // Variables
 	UPROPERTY(EditAnywhere)
 		USpringArmComponent* SpringArm;
 
+	// Consts for cheat protection
 	const float MAX_DIVE_STRENGTH = 1000;
-
-	UPROPERTY(EditAnywhere)
-		float DiveStrength = 1000;
-
+	const float MAX_CHECK_LENGTH = 200;
 	const float MAX_PUSH_LENGTH = 100;
 	const float MAX_PUSH_STRENGTH = 1000;
+
+	// Variables for launching and raycasting
+	UPROPERTY(EditAnywhere)
+		float DiveStrength = 1000;
 
 	UPROPERTY(EditAnywhere)
 		float PushLength = 100;
@@ -77,15 +79,15 @@ private: // Variables
 		float CheckLength = 200;
 
 	UPROPERTY(EditAnywhere)
-		USceneComponent* PushStartComp;
+		USceneComponent* PushStartComp; // Position to shoot raycast from
 
 	UPROPERTY(EditAnywhere)
-		USoundBase* FinishSound;
+		USoundBase* FinishSound; // Finish sound
 
 public:
 	UPROPERTY()
-		FVector CheckpointLocation;
+		FVector CheckpointLocation; // Checkpoint location
 
 	UPROPERTY()
-		bool isInFront = false;
+		bool isInFront = false; // Check in front variable
 };

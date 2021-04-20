@@ -39,6 +39,7 @@ private:
 
 	UMainMenu* Menu;
 
+
 public:
 	UHUDWidget* HUD;
 };

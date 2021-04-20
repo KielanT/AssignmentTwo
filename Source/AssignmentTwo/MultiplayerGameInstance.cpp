@@ -18,6 +18,7 @@ UMultiplayerGameInstance::UMultiplayerGameInstance()
 	HUDClass = HUDBPClass.Class;
 }
 
+
 void UMultiplayerGameInstance::Host()
 {
 	UWorld* World = GetWorld();
@@ -62,4 +63,5 @@ void UMultiplayerGameInstance::LoadMenuWidget()
 	Menu->Setup();
 	Menu->SetMenuInterface(this);
 }
+
 

@@ -8,45 +8,44 @@
 
 ACourseGameMode::ACourseGameMode()
 {
-	GameStateClass = AMyCourseGameState::StaticClass();
-
+	GameStateClass = AMyCourseGameState::StaticClass(); // Sets the game state class for this game mode
 }
 
-void ACourseGameMode::PostLogin(APlayerController* NewPlayer)
+void ACourseGameMode::PostLogin(APlayerController* NewPlayer) // Runs everytime a player joins
 {
 	Super::PostLogin(NewPlayer);
-	++NumberOfPlayers;
-	SetNumberOfPlayers(NumberOfPlayers);
+	++NumberOfPlayers; // Increments everytime a player joins
+	SetNumberOfPlayers(NumberOfPlayers); // Sets the number of players
 }
 
-void ACourseGameMode::Logout(AController* Exiting)
+void ACourseGameMode::Logout(AController* Exiting) // Runs everytime a player leaves
 {
 	Super::Logout(Exiting);
-	--NumberOfPlayers;
-	SetNumberOfPlayers(NumberOfPlayers);
+	--NumberOfPlayers; // Decrements each time a player leaves
+	SetNumberOfPlayers(NumberOfPlayers); // Sets the number of players
 }
 
 uint32 ACourseGameMode::GetNumberOfPlayers() const
 {
-	return GetGameState<AMyCourseGameState>()->NumberOfPlayers;
+	return GetGameState<AMyCourseGameState>()->NumberOfPlayers; // Gets the number of players
 }
 
 uint32 ACourseGameMode::GetNumberOfPlayersFinished() const
 {
-	return NumberOfPlayersFinished;
+	return NumberOfPlayersFinished; // Gets the number of players finished
 }
 
-void ACourseGameMode::SetNumberOfPlayersFinished(uint32 numPlayers)
+void ACourseGameMode::SetNumberOfPlayersFinished(uint32 numPlayers) // Sets the number of players
 {
 	NumberOfPlayersFinished = numPlayers;
 }
 
-void ACourseGameMode::SetNumberOfPlayers(uint32 numPlayers)
+void ACourseGameMode::SetNumberOfPlayers(uint32 numPlayers) // Set the number of players
 {
 	GetGameState<AMyCourseGameState>()->NumberOfPlayers = numPlayers;
 }
 
-void ACourseGameMode::BeginPlay()
+void ACourseGameMode::BeginPlay() 
 {
 	//UMultiplayerGameInstance* GameInstanceRef = Cast<UMultiplayerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	//GameInstanceRef->LoadHUDWidget();

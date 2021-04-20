@@ -15,6 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ASlidingDoorActor();
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -27,7 +28,22 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Replicated)
+		USceneComponent* Root;
+
+	UPROPERTY(EditAnywhere, Replicated)
 		UStaticMeshComponent* Mesh;
+
+	UPROPERTY(Replicated)
+		FVector TopPos;
+
+	UPROPERTY(Replicated)
+		FVector BottomPos;
+
+	UPROPERTY(EditAnywhere, Replicated)
+		float TopOffset;
+
+	UPROPERTY(EditAnywhere, Replicated)
+		float BottomOffset;
 
 	UPROPERTY(Replicated)
 		FVector CurrentPos;
@@ -35,30 +51,18 @@ private:
 	UPROPERTY(Replicated)
 		FVector TargetPos;
 
-	UPROPERTY(EditAnywhere, Replicated)
-		USceneComponent* TopPos;
-
-	UPROPERTY(EditAnywhere, Replicated)
-		USceneComponent* BottomPos;
-
-	UPROPERTY(EditAnywhere, Replicated)
-		float Speed = 30;
-
 	UPROPERTY(Replicated)
-		FTimerHandle DoorWaitTimer;
+		int TimerTracker = 0;
 
 	UPROPERTY(Replicated)
 		float DoorWaitTime;
 
 	UPROPERTY(Replicated)
-		uint8 TimerTracker = 0;
+		FTimerHandle DoorWaitTimer;
 
-private: // private Functions
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void ResetTarget();
+		void MulticastSlideDoor();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation) // RPC
-		void MultiCastSlideDoor();
-
-
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+		void MulticastResetSlideDoor();
 };
