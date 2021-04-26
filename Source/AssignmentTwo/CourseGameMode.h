@@ -6,7 +6,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "CourseGameMode.generated.h"
 
-
+/**
+ * 
+ */
 UCLASS()
 class ASSIGNMENTTWO_API ACourseGameMode : public AGameModeBase
 {
@@ -38,5 +40,5 @@ private:
 
 	uint32 NumberOfPlayers = 0;
 
-
+	
 };

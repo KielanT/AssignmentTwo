@@ -22,7 +22,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -59,15 +59,13 @@ private: // Variables
 	UPROPERTY(EditAnywhere)
 		USpringArmComponent* SpringArm;
 
-	// Consts for cheat protection
 	const float MAX_DIVE_STRENGTH = 1000;
-	const float MAX_CHECK_LENGTH = 200;
-	const float MAX_PUSH_LENGTH = 100;
-	const float MAX_PUSH_STRENGTH = 1000;
 
-	// Variables for launching and raycasting
 	UPROPERTY(EditAnywhere)
 		float DiveStrength = 1000;
+
+	const float MAX_PUSH_LENGTH = 100;
+	const float MAX_PUSH_STRENGTH = 1000;
 
 	UPROPERTY(EditAnywhere)
 		float PushLength = 100;
@@ -79,15 +77,15 @@ private: // Variables
 		float CheckLength = 200;
 
 	UPROPERTY(EditAnywhere)
-		USceneComponent* PushStartComp; // Position to shoot raycast from
+		USceneComponent* PushStartComp;
 
 	UPROPERTY(EditAnywhere)
-		USoundBase* FinishSound; // Finish sound
+		USoundBase* FinishSound;
 
 public:
 	UPROPERTY()
-		FVector CheckpointLocation; // Checkpoint location
+		FVector CheckpointLocation;
 
 	UPROPERTY()
-		bool isInFront = false; // Check in front variable
+		bool isInFront = false;
 };

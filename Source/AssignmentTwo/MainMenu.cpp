@@ -6,9 +6,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
 
-// Main Menu through C++ rather than blueprint
-
-void UMainMenu::Setup() // When function called puts the widget on screen
+void UMainMenu::Setup()
 {
 	this->AddToViewport();
 
@@ -17,14 +15,14 @@ void UMainMenu::Setup() // When function called puts the widget on screen
 	if (World == nullptr) return;
 	APlayerController* PlayerController = World->GetFirstPlayerController();
 
-	if (PlayerController != nullptr) // Shows cursor and sets input mode
+	if (PlayerController != nullptr)
 	{
 		PlayerController->SetInputMode(FInputModeUIOnly());
 		PlayerController->bShowMouseCursor = true;
 	}
 }
 
-void UMainMenu::TearDown() // When Called it removes the widget
+void UMainMenu::TearDown()
 {
 	this->RemoveFromViewport();
 
@@ -33,7 +31,7 @@ void UMainMenu::TearDown() // When Called it removes the widget
 	if (World == nullptr) return;
 	APlayerController* PlayerController = World->GetFirstPlayerController();
 
-	if (PlayerController != nullptr) // Shows cursor and sets the input mode
+	if (PlayerController != nullptr)
 	{
 		PlayerController->SetInputMode(FInputModeGameOnly());
 		PlayerController->bShowMouseCursor = false;
@@ -42,7 +40,7 @@ void UMainMenu::TearDown() // When Called it removes the widget
 
 void UMainMenu::SetMenuInterface(IMenuInterface* _MenuInterface)
 {
-	MenuInterface = _MenuInterface; // Sets the menu interface
+	MenuInterface = _MenuInterface;
 }
 
 bool UMainMenu::Initialize()
@@ -50,9 +48,9 @@ bool UMainMenu::Initialize()
 	bool Success = Super::Initialize();
 	if (!Success) { return false; }
 
-	// Button binding
 	if (HostBtn == nullptr) { return false; }
 	HostBtn->OnClicked.AddDynamic(this, &UMainMenu::Host);
+
 
 	if (JoinMenuBtn == nullptr) { return false; }
 	JoinMenuBtn->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
@@ -67,7 +65,7 @@ void UMainMenu::Host()
 {
 	if (MenuInterface != nullptr)
 	{
-		MenuInterface->Host(); // Calls the host function on the game instance
+		MenuInterface->Host();
 	}
 }
 
@@ -75,7 +73,7 @@ void UMainMenu::OpenJoinMenu()
 {
 	if (MenuSwitcher == nullptr) return;
 	if (JoinMenu == nullptr) return;
-	MenuSwitcher->SetActiveWidget(JoinMenu); // Switches the menu 
+	MenuSwitcher->SetActiveWidget(JoinMenu);
 }
 
 void UMainMenu::Join()
@@ -86,7 +84,7 @@ void UMainMenu::Join()
 
 		if (!IP.IsEmpty())
 		{
-			MenuInterface->Join(IP); // Calls the join function with the IP on the game instance
+			MenuInterface->Join(IP);
 		}
 	}
 }

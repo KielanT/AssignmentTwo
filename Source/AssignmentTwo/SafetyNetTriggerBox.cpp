@@ -12,5 +12,5 @@ ASafetyNetTriggerBox::ASafetyNetTriggerBox()
 void ASafetyNetTriggerBox::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
 	ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
-	Player->SetActorLocation(Player->CheckpointLocation); // Sets the players position when the player falls off the world
+	Player->SetActorLocation(Player->CheckpointLocation);
 }

@@ -24,99 +24,108 @@ void ASlidingDoorActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (HasAuthority())
-    {
-        //NetUpdateFrequency = 1;
-        NetUpdateFrequency = 5; // Sets the net frequency (doesn't replicate smoothly with 1)
-        SetReplicates(true); // Sets the replication
-        SetReplicateMovement(true); // Replicates the movement
-    }
+    //if (HasAuthority())
+    //{
+    //    NetUpdateFrequency = 1;
+    //    SetReplicates(true);
+    //    SetReplicateMovement(true);
+    //}
+    NetUpdateFrequency = 1;
+    SetReplicates(true);
+    SetReplicateMovement(true);
 
-    TopPos = Root->GetRelativeLocation(); 
-    TopPos.Z += TopOffset; // Sets the Top position
+    TopPos = Root->GetRelativeLocation();
+    TopPos.Z += TopOffset;
 
     BottomPos = Root->GetRelativeLocation();
-    BottomPos.Z += BottomOffset; // Sets the botton position
+    BottomPos.Z -= BottomOffset;
 
-    TargetPos = TopPos; // Sets the target pos to the target
-    //DrawDebugBox(GetWorld(), TopPos, FVector(50, 50, 50), FColor::Red, true, -1, 0, 10);
-    //DrawDebugBox(GetWorld(), BottomPos, FVector(50, 50, 50), FColor::Blue, true, -1, 0, 10);
+    TargetPos = TopPos;
+
+    DrawDebugBox(GetWorld(), TopPos, FVector(50, 50, 50), FColor::Red, true, -1, 0, 10);
+    DrawDebugBox(GetWorld(), BottomPos, FVector(50, 50, 50), FColor::Blue, true, -1, 0, 10);
+
 }
 
 // Called every frame
 void ASlidingDoorActor::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    SlideDoor(); // Slides the door
-    MulticastStartSlideDoor(); // Starts the sliding
+    MulticastSlideDoor();
+    UE_LOG(LogTemp, Error, TEXT("Target Pos %s"), *TargetPos.ToString());
+    UE_LOG(LogTemp, Error, TEXT("Current Pos %s"), *CurrentPos.ToString());
+    UE_LOG(LogTemp, Error, TEXT("Mesh Pos %s"), *Mesh->GetRelativeLocation().ToString());
 }
 
 void ASlidingDoorActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-    // Variable replication
-    DOREPLIFETIME(ASlidingDoorActor, bIsSlideDoor);
-    DOREPLIFETIME(ASlidingDoorActor, TargetPos);
+    DOREPLIFETIME(ASlidingDoorActor, Root);
+    DOREPLIFETIME(ASlidingDoorActor, Mesh);
+    DOREPLIFETIME(ASlidingDoorActor, TopOffset);
+    DOREPLIFETIME(ASlidingDoorActor, BottomOffset);
+    DOREPLIFETIME(ASlidingDoorActor, CurrentPos);
+    //DOREPLIFETIME(ASlidingDoorActor, TargetPos); // Causes client to go to main menu when not commented 
+    DOREPLIFETIME(ASlidingDoorActor, DoorWaitTimer);
     DOREPLIFETIME(ASlidingDoorActor, DoorWaitTime);
+    DOREPLIFETIME(ASlidingDoorActor, TimerTracker);
 
 }
 
-void ASlidingDoorActor::SlideDoor()
+void ASlidingDoorActor::MulticastSlideDoor_Implementation()
 {
-    if (bIsSlideDoor) // If the door has been set to slide by multicast rpc then slide the door
+    if (CurrentPos.Z != TargetPos.Z)
     {
-        if (CurrentPos.Z != TargetPos.Z)
-        {
-            CurrentPos = FMath::VInterpConstantTo(CurrentPos, TargetPos, GetWorld()->DeltaTimeSeconds, 500);
-            Mesh->SetRelativeLocation(FVector(0, 0, CurrentPos.Z));
-        }
-        else
-        {
-            bIsSlideDoor = false; // If reached the target set the door to not slide
-            TimerTracker = 0; // Reset timer tracker
-        }
-
-
+        CurrentPos = FMath::VInterpConstantTo(CurrentPos, TargetPos, GetWorld()->DeltaTimeSeconds, 500);
+        Mesh->SetRelativeLocation(FVector(0, 0, CurrentPos.Z));
     }
-}
 
-void ASlidingDoorActor::MulticastStartSlideDoor_Implementation()
-{
-    if (!bIsSlideDoor) // If the door is not sliding then start timer
-    { 
-        TimerTracker++; // Increments the timer tracker so that it only runs the timer once
-        if (TimerTracker == 1) 
+    if (CurrentPos.Z == TargetPos.Z)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Hit Target Pos "));
+        TimerTracker++;
+        if (TimerTracker == 1)
         {
-            DoorWaitTime = FMath::RandRange(1.0f, 4.0f); // Sets the timer to be between 1 and 4 seconds
-            GetWorld()->GetTimerManager().SetTimer(DoorWaitTimer, this, &ASlidingDoorActor::MulticastUpdateSlideDoor, DoorWaitTime, false); // Starts the timer
+            DoorWaitTime = FMath::RandRange(1.0f, 4.0f);
+            GetWorld()->GetTimerManager().SetTimer(DoorWaitTimer, this, &ASlidingDoorActor::MulticastResetSlideDoor, DoorWaitTime, false);
+            UE_LOG(LogTemp, Error, TEXT("Timer Started "));
         }
     }
 }
 
-bool ASlidingDoorActor::MulticastStartSlideDoor_Validate()
+bool ASlidingDoorActor::MulticastSlideDoor_Validate()
 {
-    return true;
-    
+    if (TargetPos.Z == TopPos.Z || TargetPos.Z == BottomPos.Z)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
-void ASlidingDoorActor::MulticastUpdateSlideDoor_Implementation()
+void ASlidingDoorActor::MulticastResetSlideDoor_Implementation()
 {
-   if (HasAuthority()) 
-   {
-        if (TargetPos == TopPos) // If the target position is the top then set the target to bottom
-        {
-            TargetPos = BottomPos;
-        }
-        else if (TargetPos == BottomPos) // If the target position is the bottom then set the target to top
-        {
-            TargetPos = TopPos;
-        }
-        bIsSlideDoor = true; // Slides the door
-   }
+    if (TargetPos == TopPos)
+    {
+        TargetPos = BottomPos;
+    }
+    else if (TargetPos == BottomPos)
+    {
+        TargetPos = TopPos;
+    }
+    TimerTracker = 0;
 }
 
-bool ASlidingDoorActor::MulticastUpdateSlideDoor_Validate()
+bool ASlidingDoorActor::MulticastResetSlideDoor_Validate()
 {
-    return true;
+    if (TargetPos.Z == TopPos.Z || TargetPos.Z == BottomPos.Z)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

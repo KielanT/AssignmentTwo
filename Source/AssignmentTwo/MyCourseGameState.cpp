@@ -10,10 +10,10 @@ AMyCourseGameState::AMyCourseGameState()
 
 uint32 AMyCourseGameState::GetNumberOfPlayersFinished()
 {
-	return NumberOfPlayersFinished; // Gets the number of players finished
+	return NumberOfPlayersFinished;
 }
 
 uint32 AMyCourseGameState::GetNumberOfPlayers()
 {
-	return NumberOfPlayers; // Gets the number of players
+	return NumberOfPlayers;
 }

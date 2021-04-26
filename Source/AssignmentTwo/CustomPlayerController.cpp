@@ -17,7 +17,7 @@ ACustomPlayerController::ACustomPlayerController()
 void ACustomPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	//LoadHUDWidget();
 }
 

@@ -8,39 +8,40 @@
 
 ACourseGameMode::ACourseGameMode()
 {
-	GameStateClass = AMyCourseGameState::StaticClass(); // Sets the game state class for this game mode
+	GameStateClass = AMyCourseGameState::StaticClass();
+
 }
 
-void ACourseGameMode::PostLogin(APlayerController* NewPlayer) // Runs everytime a player joins
+void ACourseGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	++NumberOfPlayers; // Increments everytime a player joins
-	SetNumberOfPlayers(NumberOfPlayers); // Sets the number of players
+	++NumberOfPlayers;
+	SetNumberOfPlayers(NumberOfPlayers);
 }
 
-void ACourseGameMode::Logout(AController* Exiting) // Runs everytime a player leaves
+void ACourseGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	--NumberOfPlayers; // Decrements each time a player leaves
-	SetNumberOfPlayers(NumberOfPlayers); // Sets the number of players
+	--NumberOfPlayers;
+	SetNumberOfPlayers(NumberOfPlayers);
 }
 
 uint32 ACourseGameMode::GetNumberOfPlayers() const
 {
-	return GetGameState<AMyCourseGameState>()->NumberOfPlayers; // Gets the number of players
+	return GetGameState<AMyCourseGameState>()->NumberOfPlayers;
 }
 
 uint32 ACourseGameMode::GetNumberOfPlayersFinished() const
 {
-	return NumberOfPlayersFinished; // Gets the number of players finished
+	return NumberOfPlayersFinished;
 }
 
-void ACourseGameMode::SetNumberOfPlayersFinished(uint32 numPlayers) // Sets the number of players
+void ACourseGameMode::SetNumberOfPlayersFinished(uint32 numPlayers)
 {
 	NumberOfPlayersFinished = numPlayers;
 }
 
-void ACourseGameMode::SetNumberOfPlayers(uint32 numPlayers) // Set the number of players
+void ACourseGameMode::SetNumberOfPlayers(uint32 numPlayers)
 {
 	GetGameState<AMyCourseGameState>()->NumberOfPlayers = numPlayers;
 }
