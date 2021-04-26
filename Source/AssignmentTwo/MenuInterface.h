@@ -22,6 +22,8 @@ class ASSIGNMENTTWO_API IMenuInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+
+	// Pure virtual functions that are used to call host and join
 	virtual void Host() = 0;
 
 	virtual void Join(const FString IPAddress) = 0;

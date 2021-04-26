@@ -10,7 +10,7 @@ void ALobbyGameModeBase::PostLogin(APlayerController* NewPlayer)
 	++NumberOfPlayers;
 
 
-	if (NumberOfPlayers >= 4)
+	if (NumberOfPlayers >= 4) // When all players join the player then move to the course map
 	{
 		UMultiplayerGameInstance* GameInstance = Cast<UMultiplayerGameInstance>(GetGameInstance());
 		GameInstance->Warp("MapOne");

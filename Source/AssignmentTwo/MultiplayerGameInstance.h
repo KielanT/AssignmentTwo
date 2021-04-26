@@ -20,7 +20,7 @@ class ASSIGNMENTTWO_API UMultiplayerGameInstance : public UGameInstance, public 
 public:
 	UMultiplayerGameInstance();
 
-	UFUNCTION(Exec)
+	UFUNCTION(Exec) // Exec to call function through console
 		void Host() override;
 
 	UFUNCTION(Exec)

@@ -22,7 +22,7 @@ public:
 	// Sets default values for this actor's properties
 	AFinishZoneActor();
 
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; // Used for replicating variables
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,19 +34,19 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Replicated)
-		UBoxComponent* Zone;
+		UBoxComponent* Zone; // Collision Zone
 
 	UPROPERTY(Replicated)
-		TArray<AActor*> Characters;
+		TArray<AActor*> Characters; // Array of the characters
 
 	UPROPERTY(Replicated)
-		TArray<ABaseCharacter*> CharactersCrossLine;
+		TArray<ABaseCharacter*> CharactersCrossLine; // Array of the characters crossed the line
 
 	UPROPERTY(Replicated)
-		int PlayerTracker = 0;
+		int PlayerTracker = 0; // Player tracker
 
 	UPROPERTY()
-		UMultiplayerGameInstance* GameInstanceRef;
+		UMultiplayerGameInstance* GameInstanceRef; 
 
 
 
@@ -54,13 +54,13 @@ private:
 		ACourseGameMode* CourseGameModeRef;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		UNiagaraComponent* ParticleOne;
+		UNiagaraComponent* ParticleOne; // Niagara particles
 
 	UPROPERTY(EditAnywhere, Replicated)
 		UNiagaraComponent* ParticleTwo;
 
 	UPROPERTY(Replicated)
-		bool bIsParticleActive = false;
+		bool bIsParticleActive = false; // Used for enabling and disabling particles
 
 
 	UFUNCTION(Server, Reliable)

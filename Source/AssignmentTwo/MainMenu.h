@@ -30,7 +30,7 @@ protected:
 	IMenuInterface* MenuInterface;
 
 private:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget)) // Used for binding to the widget components on the widget blueprint
 		UButton* HostBtn;
 
 	UPROPERTY(meta = (BindWidget))

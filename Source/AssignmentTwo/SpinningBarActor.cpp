@@ -22,6 +22,7 @@ void ASpinningBarActor::BeginPlay()
 	
 	if (HasAuthority())
 	{
+		// Sets up replication on server side
 		NetUpdateFrequency = 5;
 		SetReplicates(true);
 		SetReplicateMovement(true);
@@ -32,7 +33,8 @@ void ASpinningBarActor::BeginPlay()
 void ASpinningBarActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	AddActorLocalRotation(FRotator(0.0f, RotationRate * DeltaTime, 0.0f));
+	AddActorLocalRotation(FRotator(0.0f, RotationRate * DeltaTime, 0.0f)); // Rotates the spinning arm
+	//SpinBar();
 }
 
 void ASpinningBarActor::SpinBar()
@@ -47,7 +49,7 @@ void ASpinningBarActor::ServerSpinBar_Implementation()
 
 bool ASpinningBarActor::ServerSpinBar_Validate()
 {
-	if (RotationRate <= MAX_ROTATION_RATE)
+	if (RotationRate <= MAX_ROTATION_RATE) // Only runs if the rotation rate is less or equal to the max (cheat protection)
 	{
 		return true;
 	}
@@ -60,6 +62,6 @@ bool ASpinningBarActor::ServerSpinBar_Validate()
 void ASpinningBarActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ASpinningBarActor, RotationRate);
+	DOREPLIFETIME(ASpinningBarActor, RotationRate); // Replicates the rotation rate
 }
 

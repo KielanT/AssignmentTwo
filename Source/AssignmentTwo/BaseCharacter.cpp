@@ -11,7 +11,7 @@
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 
@@ -37,11 +37,12 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Fixes issues when hit by the spinning bar
 	FHitResult OutHit;
 	GetCharacterMovement()->SafeMoveUpdatedComponent(FVector(0.f, 0.f, 0.01f), GetActorRotation(), true, OutHit);
 	GetCharacterMovement()->SafeMoveUpdatedComponent(FVector(0.f, 0.f, -0.01f), GetActorRotation(), true, OutHit);
 
-	CheckpointLocation = GetActorLocation();
+	CheckpointLocation = GetActorLocation(); // Sets the first checkpoint location to the players spawn/start location
 
 }
 
@@ -49,7 +50,7 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CheckInFront();
+	CheckInFront(); // Checks if there is a player in front
 }
 
 // Called to bind functionality to input
@@ -68,38 +69,38 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 }
 
 
-void ABaseCharacter::MoveForwards(float axis)
+void ABaseCharacter::MoveForwards(float axis) // Move forwards or backwards when W/S is pressed
 {
 	AddMovementInput(GetActorForwardVector() * axis);
 }
 
-void ABaseCharacter::Strafe(float axis)
+void ABaseCharacter::Strafe(float axis) // Move Left or Right when A/D is pressed
 {
 	AddMovementInput(GetActorRightVector() * axis);
 }
 
-void ABaseCharacter::LookUp(float axis)
+void ABaseCharacter::LookUp(float axis) // Rotates the camera to look up and down
 {
 	AddControllerPitchInput(axis);
 }
 
-void ABaseCharacter::Turn(float axis)
+void ABaseCharacter::Turn(float axis) // Rotates the player to turn left and right (Camera rotates with it)
 {
 	AddControllerYawInput(axis);
 }
 
-void ABaseCharacter::Dive()
+void ABaseCharacter::Dive() // Dive Function called with When the player right clicks
 {
 	ServerDive();
 }
 
-void ABaseCharacter::Push()
+void ABaseCharacter::Push() // If a player is in front then it will push that player 
 {
 	ServerPush();
-	
+
 }
 
-void ABaseCharacter::CheckInFront()
+void ABaseCharacter::CheckInFront() // Check in front function
 {
 	if (IsLocallyControlled())
 	{
@@ -109,10 +110,10 @@ void ABaseCharacter::CheckInFront()
 
 void ABaseCharacter::ServerCheckInFront_Implementation()
 {
-	FVector Location = GetActorLocation();
-	FRotator Rotation = GetActorRotation();
+	FVector Location = GetActorLocation(); // Start position of the raycast
+	FRotator Rotation = GetActorRotation(); // Start rotation of the raycast
 
-	FVector End = Location - GetActorForwardVector() * CheckLength;
+	FVector End = Location - GetActorForwardVector() * CheckLength; // Sets the end position of the raycast
 
 	FHitResult Hit; // Creates hit result
 
@@ -125,21 +126,28 @@ void ABaseCharacter::ServerCheckInFront_Implementation()
 	if (success) // if hit has happened
 	{
 		AActor* HitActor = Hit.GetActor(); // Gets the actor been hit
-		
-		if (HitActor != nullptr && HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass())) // Checks if actor exists
+
+		if (HitActor != nullptr && HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass())) // Checks if actor exists and is the correct type
 		{
 			isInFront = true;
 		}
 	}
-	else
+	else // If hit hasn't happened then set to false;
 	{
 		isInFront = false;
 	}
 }
 
-bool ABaseCharacter::ServerCheckInFront_Validate()
+bool ABaseCharacter::ServerCheckInFront_Validate() // Cheat protection 
 {
-	return true;
+	if (CheckLength == MAX_CHECK_LENGTH) // Only works if the check length is 200
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void ABaseCharacter::ServerPush_Implementation()
@@ -163,10 +171,10 @@ void ABaseCharacter::ServerPush_Implementation()
 		if (HitActor != nullptr) // Checks if actor exists
 		{
 			ABaseCharacter* OtherActor = Cast<ABaseCharacter>(HitActor);
-			if (HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
+			if (HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass())) // Checks the actor is the correct type
 			{
 
-				if (OtherActor->isInFront)
+				if (OtherActor->isInFront) // If the player is in front then push using the launch function on the other player
 				{
 					OtherActor->LaunchCharacter(HitActor->GetActorForwardVector() * PushStrength, true, true);
 				}
@@ -177,17 +185,7 @@ void ABaseCharacter::ServerPush_Implementation()
 
 bool ABaseCharacter::ServerPush_Validate()
 {
-	return true;
-}
-
-void ABaseCharacter::ServerDive_Implementation()
-{
-	LaunchCharacter(GetActorForwardVector() * DiveStrength, false, false);
-}
-
-bool ABaseCharacter::ServerDive_Validate()
-{
-	if (DiveStrength <= MAX_DIVE_STRENGTH)
+	if (PushLength == MAX_PUSH_LENGTH && PushStrength <= MAX_PUSH_STRENGTH) // Only works if the push length is 100
 	{
 		return true;
 	}
@@ -197,7 +195,24 @@ bool ABaseCharacter::ServerDive_Validate()
 	}
 }
 
-void ABaseCharacter::ClientFinishSound_Implementation()
+void ABaseCharacter::ServerDive_Implementation() // Causes the player to "dive" forward
+{
+	LaunchCharacter(GetActorForwardVector() * DiveStrength, false, false);
+}
+
+bool ABaseCharacter::ServerDive_Validate()
+{
+	if (DiveStrength <= MAX_DIVE_STRENGTH) // Only runs if the Dive Strength is correct
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void ABaseCharacter::ClientFinishSound_Implementation() // Plays finish sound on the client only
 {
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FinishSound, GetActorLocation());
 }

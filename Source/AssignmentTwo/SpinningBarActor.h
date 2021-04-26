@@ -29,7 +29,6 @@ private: // Private Functions
 
 	UFUNCTION(Server, Reliable, WithValidation) // RPC
 		void ServerSpinBar();
-
 	
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
@@ -38,7 +37,7 @@ private: // Variables
 		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		float RotationRate = 200.0f;
+		float RotationRate = 200.0f; // used for setting the rotation rate
 
-	const float MAX_ROTATION_RATE = 200.0f;
+	const float MAX_ROTATION_RATE = 200.0f; // Used for setting the max rotation rate
 };

@@ -4,7 +4,7 @@
 #include "HUDWidget.h"
 #include "Components/TextBlock.h"
 
-void UHUDWidget::Setup()
+void UHUDWidget::Setup() 
 {
 	this->AddToViewport();
 
