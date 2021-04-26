@@ -27,42 +27,48 @@ public:
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 private:
-	UPROPERTY(EditAnywhere, Replicated)
+	UPROPERTY(EditAnywhere)
 		USceneComponent* Root;
 
-	UPROPERTY(EditAnywhere, Replicated)
+	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Mesh;
 
 	UPROPERTY(Replicated)
-		FVector TopPos;
+		bool bIsSlideDoor;
 
-	UPROPERTY(Replicated)
-		FVector BottomPos;
-
-	UPROPERTY(EditAnywhere, Replicated)
+	UPROPERTY(EditAnywhere)
 		float TopOffset;
 
-	UPROPERTY(EditAnywhere, Replicated)
+	UPROPERTY(EditAnywhere)
 		float BottomOffset;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 		FVector CurrentPos;
+
+	UPROPERTY()
+		FVector TopPos;
+
+	UPROPERTY()
+		FVector BottomPos;
 
 	UPROPERTY(Replicated)
 		FVector TargetPos;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 		int TimerTracker = 0;
 
 	UPROPERTY(Replicated)
 		float DoorWaitTime;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 		FTimerHandle DoorWaitTimer;
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
-		void MulticastSlideDoor();
+	UFUNCTION()
+		void SlideDoor();
 
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
-		void MulticastResetSlideDoor();
+		void MulticastStartSlideDoor();
+
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+		void MulticastUpdateSlideDoor();
 };
