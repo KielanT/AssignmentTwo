@@ -39,8 +39,8 @@ void ASlidingDoorActor::BeginPlay()
     BottomPos.Z += BottomOffset; // Sets the botton position
 
     TargetPos = TopPos; // Sets the target pos to the target
-    DrawDebugBox(GetWorld(), TopPos, FVector(50, 50, 50), FColor::Red, true, -1, 0, 10);
-    DrawDebugBox(GetWorld(), BottomPos, FVector(50, 50, 50), FColor::Blue, true, -1, 0, 10);
+    //DrawDebugBox(GetWorld(), TopPos, FVector(50, 50, 50), FColor::Red, true, -1, 0, 10);
+    //DrawDebugBox(GetWorld(), BottomPos, FVector(50, 50, 50), FColor::Blue, true, -1, 0, 10);
 }
 
 // Called every frame

@@ -32,7 +32,7 @@ void ASpinningBarActor::BeginPlay()
 void ASpinningBarActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	AddActorLocalRotation(FRotator(0.0f, RotationRate * DeltaTime, 0.0f));
+	AddActorLocalRotation(FRotator(0.0f, RotationRate * DeltaTime, 0.0f)); // Rotates the spin bar
 }
 
 void ASpinningBarActor::SpinBar()
@@ -60,6 +60,8 @@ bool ASpinningBarActor::ServerSpinBar_Validate()
 void ASpinningBarActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicates the rotation rate
 	DOREPLIFETIME(ASpinningBarActor, RotationRate);
 }
 

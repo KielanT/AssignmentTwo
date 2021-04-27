@@ -15,35 +15,35 @@ ACourseGameMode::ACourseGameMode()
 void ACourseGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	++NumberOfPlayers;
-	SetNumberOfPlayers(NumberOfPlayers);
+	++NumberOfPlayers; // Increments when a player joins
+	SetNumberOfPlayers(NumberOfPlayers); // Sets the number of players
 }
 
 void ACourseGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	--NumberOfPlayers;
-	SetNumberOfPlayers(NumberOfPlayers);
+	--NumberOfPlayers; // Decrements when a player leaves
+	SetNumberOfPlayers(NumberOfPlayers); // Sets the number of players
 }
 
 uint32 ACourseGameMode::GetNumberOfPlayers() const
 {
-	return GetGameState<AMyCourseGameState>()->NumberOfPlayers;
+	return GetGameState<AMyCourseGameState>()->NumberOfPlayers; // Gets the number of players
 }
 
 uint32 ACourseGameMode::GetNumberOfPlayersFinished() const
 {
-	return NumberOfPlayersFinished;
+	return NumberOfPlayersFinished; // Gets ht enumber of players finished
 }
 
 void ACourseGameMode::SetNumberOfPlayersFinished(uint32 numPlayers)
 {
-	NumberOfPlayersFinished = numPlayers;
+	NumberOfPlayersFinished = numPlayers; // Sets the number of players that have finished
 }
 
 void ACourseGameMode::SetNumberOfPlayers(uint32 numPlayers)
 {
-	GetGameState<AMyCourseGameState>()->NumberOfPlayers = numPlayers;
+	GetGameState<AMyCourseGameState>()->NumberOfPlayers = numPlayers; // Sets the number of players
 }
 
 void ACourseGameMode::BeginPlay()

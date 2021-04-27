@@ -37,6 +37,7 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Fixes movement issue when hit by the spinning arm
 	FHitResult OutHit;
 	GetCharacterMovement()->SafeMoveUpdatedComponent(FVector(0.f, 0.f, 0.01f), GetActorRotation(), true, OutHit);
 	GetCharacterMovement()->SafeMoveUpdatedComponent(FVector(0.f, 0.f, -0.01f), GetActorRotation(), true, OutHit);
@@ -49,7 +50,7 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CheckInFront();
+	CheckInFront(); // Checks if there is a player in front
 }
 
 // Called to bind functionality to input
@@ -90,12 +91,12 @@ void ABaseCharacter::Turn(float axis)
 
 void ABaseCharacter::Dive()
 {
-	ServerDive();
+	ServerDive(); // Function for perfroming a dive
 }
 
 void ABaseCharacter::Push()
-{
-	ServerPush();
+{ 
+	ServerPush(); // Function for pushing another player
 	
 }
 
@@ -103,16 +104,17 @@ void ABaseCharacter::CheckInFront()
 {
 	if (IsLocallyControlled())
 	{
-		ServerCheckInFront();
+		ServerCheckInFront(); // Checks in front
 	}
 }
 
 void ABaseCharacter::ServerCheckInFront_Implementation()
 {
+	// Start Location and Rotation of raycast
 	FVector Location = GetActorLocation();
 	FRotator Rotation = GetActorRotation();
 
-	FVector End = Location - GetActorForwardVector() * CheckLength;
+	FVector End = Location - GetActorForwardVector() * CheckLength; // End location of ray cast
 
 	FHitResult Hit; // Creates hit result
 
@@ -144,10 +146,11 @@ bool ABaseCharacter::ServerCheckInFront_Validate()
 
 void ABaseCharacter::ServerPush_Implementation()
 {
+	// Start Location and Rotation of raycast
 	FVector Location = PushStartComp->GetComponentLocation();
 	FRotator Rotation = PushStartComp->GetComponentRotation();
 
-	FVector End = Location + Rotation.Vector() * PushLength;
+	FVector End = Location + Rotation.Vector() * PushLength; // End location of raycast
 
 	FHitResult Hit; // Creates hit result
 
@@ -163,10 +166,9 @@ void ABaseCharacter::ServerPush_Implementation()
 		if (HitActor != nullptr) // Checks if actor exists
 		{
 			ABaseCharacter* OtherActor = Cast<ABaseCharacter>(HitActor);
-			if (HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
+			if (HitActor->GetClass()->IsChildOf(ABaseCharacter::StaticClass())) // Checks if hit actor is of the correct class
 			{
-
-				if (OtherActor->isInFront)
+				if (OtherActor->isInFront) // If the player is in front then launch the other player 
 				{
 					OtherActor->LaunchCharacter(HitActor->GetActorForwardVector() * PushStrength, true, true);
 				}
@@ -177,17 +179,25 @@ void ABaseCharacter::ServerPush_Implementation()
 
 bool ABaseCharacter::ServerPush_Validate()
 {
-	return true;
+	if (MAX_PUSH_LENGTH == PushLength &&  // Only runs if the push length and strength is the same as the max strength and length (cheat protection)
+		MAX_PUSH_STRENGTH == PushStrength)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void ABaseCharacter::ServerDive_Implementation()
 {
-	LaunchCharacter(GetActorForwardVector() * DiveStrength, false, false);
+	LaunchCharacter(GetActorForwardVector() * DiveStrength, false, false); // Launches the character
 }
 
 bool ABaseCharacter::ServerDive_Validate()
 {
-	if (DiveStrength <= MAX_DIVE_STRENGTH)
+	if (DiveStrength <= MAX_DIVE_STRENGTH) // Only runs if the dive strength is smaller or eqaul to max strength
 	{
 		return true;
 	}
@@ -199,5 +209,5 @@ bool ABaseCharacter::ServerDive_Validate()
 
 void ABaseCharacter::ClientFinishSound_Implementation()
 {
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FinishSound, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FinishSound, GetActorLocation()); // Plays sound only on client
 }

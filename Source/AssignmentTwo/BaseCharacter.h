@@ -59,13 +59,14 @@ private: // Variables
 	UPROPERTY(EditAnywhere)
 		USpringArmComponent* SpringArm;
 
-	const float MAX_DIVE_STRENGTH = 1000;
+	
 
 	UPROPERTY(EditAnywhere)
 		float DiveStrength = 1000;
 
 	const float MAX_PUSH_LENGTH = 100;
-	const float MAX_PUSH_STRENGTH = 1000;
+	const float MAX_PUSH_STRENGTH = 5000;
+	const float MAX_DIVE_STRENGTH = 1000;
 
 	UPROPERTY(EditAnywhere)
 		float PushLength = 100;

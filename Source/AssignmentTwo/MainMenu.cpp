@@ -8,7 +8,7 @@
 
 void UMainMenu::Setup()
 {
-	this->AddToViewport();
+	this->AddToViewport(); // Adds the widget to viewport
 
 	UWorld* World = GetWorld();
 
@@ -17,14 +17,15 @@ void UMainMenu::Setup()
 
 	if (PlayerController != nullptr)
 	{
-		PlayerController->SetInputMode(FInputModeUIOnly());
+		// Sets the input mode to ui only and shows the cursor
+		PlayerController->SetInputMode(FInputModeUIOnly()); 
 		PlayerController->bShowMouseCursor = true;
 	}
 }
 
 void UMainMenu::TearDown()
 {
-	this->RemoveFromViewport();
+	this->RemoveFromViewport(); // Removes the widget
 
 	UWorld* World = GetWorld();
 
@@ -33,6 +34,7 @@ void UMainMenu::TearDown()
 
 	if (PlayerController != nullptr)
 	{
+		// Sets the input mode to game only and hides the cursor
 		PlayerController->SetInputMode(FInputModeGameOnly());
 		PlayerController->bShowMouseCursor = false;
 	}
@@ -40,7 +42,7 @@ void UMainMenu::TearDown()
 
 void UMainMenu::SetMenuInterface(IMenuInterface* _MenuInterface)
 {
-	MenuInterface = _MenuInterface;
+	MenuInterface = _MenuInterface; // Sets the menu interface
 }
 
 bool UMainMenu::Initialize()
@@ -48,8 +50,9 @@ bool UMainMenu::Initialize()
 	bool Success = Super::Initialize();
 	if (!Success) { return false; }
 
+	// Binds the buttons to functions
 	if (HostBtn == nullptr) { return false; }
-	HostBtn->OnClicked.AddDynamic(this, &UMainMenu::Host);
+	HostBtn->OnClicked.AddDynamic(this, &UMainMenu::Host); 
 
 
 	if (JoinMenuBtn == nullptr) { return false; }
@@ -65,15 +68,15 @@ void UMainMenu::Host()
 {
 	if (MenuInterface != nullptr)
 	{
-		MenuInterface->Host();
+		MenuInterface->Host(); // Calls the host function on the game instance
 	}
 }
 
 void UMainMenu::OpenJoinMenu()
 {
 	if (MenuSwitcher == nullptr) return;
-	if (JoinMenu == nullptr) return;
-	MenuSwitcher->SetActiveWidget(JoinMenu);
+	if (JoinMenu == nullptr) return; 
+	MenuSwitcher->SetActiveWidget(JoinMenu); // Opens the menu
 }
 
 void UMainMenu::Join()
@@ -84,7 +87,7 @@ void UMainMenu::Join()
 
 		if (!IP.IsEmpty())
 		{
-			MenuInterface->Join(IP);
+			MenuInterface->Join(IP); // Calls the join function on the game instance
 		}
 	}
 }

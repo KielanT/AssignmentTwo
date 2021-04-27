@@ -19,20 +19,22 @@ AFinishZoneActor::AFinishZoneActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Zone = CreateDefaultSubobject<UBoxComponent>(TEXT("Finish Zone"));
+	Zone = CreateDefaultSubobject<UBoxComponent>(TEXT("Finish Zone")); // Creates the finsih zone
 	Zone->SetupAttachment(RootComponent);
 
-	ParticleOne = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle One"));
+	ParticleOne = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle One")); // Create the particles
 	ParticleOne->SetupAttachment(Zone);
 
 	ParticleTwo = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle Two"));
 	ParticleTwo->SetupAttachment(Zone);
-	bReplicates = true;
+	bReplicates = true; // Sets the actor to be replicated
 }
 
 void AFinishZoneActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Variable Replication
 	DOREPLIFETIME(AFinishZoneActor, PlayerTracker);
 	DOREPLIFETIME(AFinishZoneActor, ParticleOne);
 	DOREPLIFETIME(AFinishZoneActor, ParticleTwo);
@@ -46,14 +48,14 @@ void AFinishZoneActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void AFinishZoneActor::BeginPlay()
 {
 	Super::BeginPlay();
-	Zone->OnComponentBeginOverlap.AddDynamic(this, &AFinishZoneActor::OnOverlapBegin);
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), Characters);
+	Zone->OnComponentBeginOverlap.AddDynamic(this, &AFinishZoneActor::OnOverlapBegin); // Binds the collision function
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), Characters); // Gets all the character actors in the game and adds them to an array
 
 	GameInstanceRef = Cast<UMultiplayerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	CourseGameModeRef = Cast<ACourseGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-	ParticleOne->SetActive(bIsParticleActive);
-	ParticleTwo->SetActive(bIsParticleActive);
+	ParticleOne->SetActive(bIsParticleActive); // Enables and Disables the particles
+	ParticleTwo->SetActive(bIsParticleActive); // Enables and Disables the particles
 
 }
 
@@ -61,7 +63,7 @@ void AFinishZoneActor::BeginPlay()
 void AFinishZoneActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MulticastPlayParticles();
+	MulticastPlayParticles(); // Plays the particles on all clients and the server
 }
 
 void AFinishZoneActor::ServerUpdateText_Implementation()
@@ -77,7 +79,7 @@ bool AFinishZoneActor::ServerUpdateText_Validate()
 
 void AFinishZoneActor::MulticastPlayParticles_Implementation()
 {
-	if (PlayerTracker == 1)
+	if (PlayerTracker == 1) // If the first player crosses the finish line activate the particles
 	{
 		bIsParticleActive = true;
 		ParticleOne->SetActive(bIsParticleActive);
@@ -91,31 +93,31 @@ void AFinishZoneActor::OnOverlapBegin_Implementation(UPrimitiveComponent* Overla
 {
 	UE_LOG(LogTemp, Warning, TEXT("Finished"));
 
-	for (int i = 0; i < Characters.Num(); i++)
+	for (int i = 0; i < Characters.Num(); i++) // Loops for each player in the game
 	{
-		if (!CharactersCrossLine.Contains(OtherActor))
+		if (!CharactersCrossLine.Contains(OtherActor)) // Checks if the player has not already crossed the line
 		{
 			ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
 			UE_LOG(LogTemp, Warning, TEXT("Crossed Line"));
-			CharactersCrossLine.Add(Player);
-			PlayerTracker++;
-			CourseGameModeRef->SetNumberOfPlayersFinished(PlayerTracker);
+			CharactersCrossLine.Add(Player); // Adds the player to an array
+			PlayerTracker++; // Increments the player tracker 
+			CourseGameModeRef->SetNumberOfPlayersFinished(PlayerTracker); // Sets the number of players finished
 
-			Player->ClientFinishSound();
+			Player->ClientFinishSound(); // Plays the finish sound on client only
 
-			APlayerController* PC = GetWorld()->GetFirstPlayerController();
-			ACustomPlayerController* CPC = Cast<ACustomPlayerController>(PC);
+			//APlayerController* PC = GetWorld()->GetFirstPlayerController();
+			//ACustomPlayerController* CPC = Cast<ACustomPlayerController>(PC);
 
 			//FString CountText = FString::FromInt(PlayerTracker);
 			//CPC->HUD->SetFinishCountText(FText::FromString(CountText));
-			ServerUpdateText();
+			//ServerUpdateText();
 		}
 	}
 
 
 
 
-	if (PlayerTracker >= 3)
+	if (PlayerTracker >= 3) // If 3 or more players have finished the line then change server
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Players finished"));
 		ServerChangeLevel();
@@ -125,7 +127,7 @@ void AFinishZoneActor::OnOverlapBegin_Implementation(UPrimitiveComponent* Overla
 
 void AFinishZoneActor::ServerChangeLevel_Implementation()
 {
-	GameInstanceRef->Warp(TEXT("EndLevel"));
+	GameInstanceRef->Warp(TEXT("EndLevel")); // Moves to the final level
 }
 
 bool AFinishZoneActor::ServerChangeLevel_Validate()

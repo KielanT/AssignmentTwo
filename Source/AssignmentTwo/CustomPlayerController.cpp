@@ -9,9 +9,9 @@
 
 ACustomPlayerController::ACustomPlayerController()
 {
-	ConstructorHelpers::FClassFinder<UUserWidget>HUDBPClass(TEXT("/Game/Blueprints/WBP_HUD"));
+	ConstructorHelpers::FClassFinder<UUserWidget>HUDBPClass(TEXT("/Game/Blueprints/WBP_HUD")); // Gets hud widget blueprint
 	if (HUDBPClass.Class == nullptr) return;
-	HUDClass = HUDBPClass.Class;
+	HUDClass = HUDBPClass.Class; // Sets the class
 }
 
 void ACustomPlayerController::BeginPlay()
@@ -27,5 +27,5 @@ void ACustomPlayerController::LoadHUDWidget()
 	HUD = CreateWidget<UHUDWidget>(this, HUDClass);
 	if (HUD == nullptr) return;
 
-	HUD->Setup();
+	HUD->Setup(); // Adds hud to view port
 }

@@ -12,5 +12,5 @@ ACheckpointTriggerBox::ACheckpointTriggerBox()
 void ACheckpointTriggerBox::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
 	ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
-	Player->CheckpointLocation = GetActorLocation();
+	Player->CheckpointLocation = GetActorLocation(); // Sets the new Checkpoint location
 }

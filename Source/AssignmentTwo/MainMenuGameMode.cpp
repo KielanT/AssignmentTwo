@@ -8,5 +8,5 @@
 void AMainMenuGameMode::BeginPlay()
 {
 	UMultiplayerGameInstance* GameInstanceRef = Cast<UMultiplayerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	GameInstanceRef->LoadMenuWidget();
+	GameInstanceRef->LoadMenuWidget(); // Loads the main menu
 }

@@ -7,10 +7,10 @@
 void ALobbyGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	++NumberOfPlayers;
+	++NumberOfPlayers; // Increments the amount of players
 
 
-	if (NumberOfPlayers >= 4)
+	if (NumberOfPlayers >= 4) // If the number of players are more or equal to 4 then move to the map
 	{
 		UMultiplayerGameInstance* GameInstance = Cast<UMultiplayerGameInstance>(GetGameInstance());
 		GameInstance->Warp("MapOne");
